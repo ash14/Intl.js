@@ -40,5 +40,8 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/andyearnshaw/Intl.js/issues"
+  },
+  "dependencies": {
+    "moment-timezone": "^0.2.5"
   }
 }

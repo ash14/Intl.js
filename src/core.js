@@ -1840,21 +1840,13 @@ function/* 12.1.1.1 */InitializeDateTimeFormat (dateTimeFormat, locales, options
 
     // 16. If tz is not undefined, then
     if (tz !== undefined) {
-        // a. Let tz be ToString(tz).
-        // b. Convert tz to upper case as described in 6.1.
-        //    NOTE: If an implementation accepts additional time zone values, as permitted
-        //          under certain conditions by the Conformance clause, different casing
-        //          rules apply.
-        tz = toLatinUpperCase(tz);
-
-        // c. If tz is not "UTC", then throw a RangeError exception.
-        // ###TODO: accept more time zones###
-        if (tz !== 'UTC')
-            throw new RangeError('timeZone is not supported.');
+        var zone = moment.tz.zone(tz);
+        if (!zone) {
+            internal['[[timeZone]]'] = 'UTC';
+        } else {
+            internal['[[timeZone]]'] = zone.name;
+        }
     }
-
-    // 17. Set the [[timeZone]] internal property of dateTimeFormat to tz.
-    internal['[[timeZone]]'] = tz;
 
     // 18. Let opt be a new Record.
     opt = new Record();
@@ -2487,22 +2479,21 @@ function ToLocalTime(date, calendar, timeZone) {
     //    for local time zone adjustment and daylight saving time adjustment imposed by
     //    ES5, 15.9.1.7 and 15.9.1.8.
     // ###TODO###
-    var d = new Date(date),
-        m = 'get' + (timeZone || '');
+    var d = moment.tz(date, timeZone);
 
     // 2. Return a Record with fields [[weekday]], [[era]], [[year]], [[month]], [[day]],
     //    [[hour]], [[minute]], [[second]], and [[inDST]], each with the corresponding
     //    calculated value.
     return new Record({
-        '[[weekday]]': d[m + 'Day'](),
-        '[[era]]'    : +(d[m + 'FullYear']() >= 0),
-        '[[year]]'   : d[m + 'FullYear'](),
-        '[[month]]'  : d[m + 'Month'](),
-        '[[day]]'    : d[m + 'Date'](),
-        '[[hour]]'   : d[m + 'Hours'](),
-        '[[minute]]' : d[m + 'Minutes'](),
-        '[[second]]' : d[m + 'Seconds'](),
-        '[[inDST]]'  : false // ###TODO###
+        '[[weekday]]': d.get('weekday'),
+        '[[era]]'    : +(d.get('year') >= 0),
+        '[[year]]'   : d.get('year'),
+        '[[month]]'  : d.get('month'),
+        '[[day]]'    : d.get('date'),
+        '[[hour]]'   : d.get('hour'),
+        '[[minute]]' : d.get('minute'),
+        '[[second]]' : d.get('second'),
+        '[[inDST]]'  : d.isDSTShifted()
     });
 }
 
