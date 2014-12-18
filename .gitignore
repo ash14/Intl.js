@@ -1,3 +1,5 @@
+.DS_Store
+
 # Pre-processed locale data output from Ldml2JsonConverter
 cldr/
 
